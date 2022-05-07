@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h1>Category List</h1>
+<form>
+    <input name="categoryName" id="categoryName">
+    <input type="submit" th:value="Create" onclick="addCategory()">
+    
+</form>
+
+<table id="list">
+    <tr>
+        <td>#</td>
+        <td>Name</td>
+        <td>Action</td>
+    </tr>
+    <th:block th:each="p:${categories}">
+        <tr>
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.name}"></td>
+            <td>
+                <a class="deleteCategory" th:href="${p.getId()}">Delete</a>
+            </td>
+        </tr>
+
+    </th:block>
+</table>
+<script>
+    function addCategory(){
+        // lấy dũ liệu
+        // let name = document.getElementById("categoryName").value;
+        let nameCategory = $('#categoryName').val();
+        // Tạo mới đối tượng
+        let newCategory = {
+            name: nameCategory
+        }
+        // Chuyển dữ liệu sang JSON
+        let newCategoryJson = JSON.stringify(newCategory);
+
+        //Gọi API tạo mới
+        $.ajax({
+            headers:{
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            // Method
+            type: "POST",
+            //Kiểu dữ liệu đẩy lên
+            data: newCategoryJson,
+            // Tên URL
+            url: "http://localhost:8080/category",
+            success: function (){
+                showListCategory();
+                alert("Tạo mới thành công");
+            }
+        })
+
+        // Chặn sự kiện mặc định của form hoặc thẻ
+        event.preventDefault()
+    }
+    function showListCategory(){
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/category",
+            success: function (categories){
+                let content = '<tr>\n' +
+                    '        <td>#</td>\n' +
+                    '        <td>Name</td>\n' +
+                    '        <td>Action</td>\n' +
+                    '    </tr>';
+                for (let i = 0; i < categories.length; i++) {
+                    content += ` <tr>
+            <td> ${categories[i].id}</td>
+            <td> ${categories[i].name}</td>
+            <td>
+            <a class="deleteCategory" th:href="${p.getId()}">Delete</a>
+
+
+            </td>
+         </tr>`;
+
+                }
+                document.getElementById("list").innerHTML = content;
+            }
+        })
+    }
+    // $(document).ready(function (){
+    //     $(".deleteCategory").click(function (event){
+    //         let a = $(this);
+    //         let categoryId = a.attr("href");
+    //         $.ajax({
+    //             type: "DELETE",
+    //             // url: "/category/" + categoryId,
+    //             url: `/category/${categoryId}`, // chú ý url phải dùng mark down, sai lòi mắt :(((
+    //             success: function () {
+    //                 a.parent().parent().remove();
+    //             }
+    //         })
+    //         event.preventDefault();
+    //     })
+    // })
+    function deleteCategory(element){
+        // let a = $(this);
+        let categoryId = element.getAttribute("href");
+        $.ajax({
+            type:"DELETE",
+
+            url: `/category/${categoryId}`,
+            // success: function () {
+            //     element.parentElement.parentElement.remove();
+            // }
+            success: showListProvince
+
+        })
+        event.preventDefault();
+    }
+
+
+
+
+
+</script>
+</body>
+</html>
