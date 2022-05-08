@@ -1,20 +1,39 @@
 package com.an.spring_boot_ajax.controller;
 
 import com.an.spring_boot_ajax.model.Blog;
+import com.an.spring_boot_ajax.model.Category;
 import com.an.spring_boot_ajax.service.blog.IBlogService;
+import com.an.spring_boot_ajax.service.category.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Optional;
 
+
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/blog")
 public class BlogController {
     @Autowired
     private IBlogService blogService;
+    @Autowired
+    private CategoryService categoryService;
+    @ModelAttribute("categories")
+    private Iterable<Category> listCategories(){
+        return categoryService.findAll();
+    }
+
+    @GetMapping("/list")
+    public ModelAndView showList(){
+        ModelAndView modelAndView = new ModelAndView("blog/list");
+        modelAndView.addObject("blogs", blogService.findAll());
+        modelAndView.addObject("categories",categoryService.findAll());
+        return modelAndView;
+    }
 
     @GetMapping
     public ResponseEntity<Iterable<Blog>> findAllBlog() {

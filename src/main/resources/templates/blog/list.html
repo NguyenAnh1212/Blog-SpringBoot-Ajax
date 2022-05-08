@@ -2,129 +2,148 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Book</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        function addNewBlog(){
+            //lay du lieu
+            let title = $('#title').val();
+            let content = $('#content').val();
+            let category = $('#category').val();
+            let newBlog = {
+                title: title,
+                content : content,
+                category: {
+                    id: category
+                }
+            }
+            // goi ajax
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "POST",
+                data: JSON.stringify(newBlog),
+                //tên API
+                url: "/blog",
+                //xử lý khi thành công
+                success: successHandler
+
+            });
+            //chặn sự kiện mặc định của thẻ
+            event.preventDefault();
+        }
+        function getBlog(blog) {
+            return `<tr><td >${blog.title}</td><td >${blog.content}</td><td >${blog.category.name}</td>` +
+                `<td><button class="updateBlog" type="button" onclick="showEditForm(${blog.id}})">update</button></td>` +
+                `<td><button class="deleteBlog" onclick="deleteBlog(${blog.id})">Delete</button></tr>`;
+        }
+
+        function successHandler() {
+            $.ajax({
+                type: "GET",
+                url: "/blog",
+                success: function (data) {
+                    let content = '<tr>\n' +
+                        '        <th>Title </th>\n' +
+                        '        <th>Content</th>\n' +
+                        '        <th>Category</th>\n' +
+                        '        <th>Edit</th>\n' +
+                        '        <th>Delete</th>\n' +
+                        '    </tr>';
+                    for (let i = 0; i < data.length; i++) {
+                        content += getBlog(data[i])
+                    }
+                    document.getElementById('blogList').innerHTML = content;
+                }
+            });
+        }
+        function deleteBlog(id){
+            $.ajax({
+                type: "DELETE",
+                url: `/blog/${id}`,
+                success: successHandler
+            })
+            event.preventDefault();
+        }
+
+
+        // function updateBook(id){
+        //     let name = $(`#name`).val();
+        //     let author = $(`#author`).val();
+        //     let price = $(`#price`).val();
+        //     let category = $(`#category`).val();
+        //     let book = {
+        //         name : name,
+        //         price : price,
+        //         author: author,
+        //         category:{
+        //             id : category
+        //         }
+        //     }
+        //     $.ajax({
+        //         headers:{
+        //             'Accept' : 'application/json',
+        //             'Content-Type' : 'application/json'
+        //         },
+        //         type:"PUT",
+        //         data: JSON.stringify(book),
+        //         url:`/books/${id}`,
+        //         success:function (){
+        //             successHandler()
+        //         }
+        //     })
+        // }
+        $(document).ready(successHandler())
+    </script>
 </head>
 <body>
-
-<h1>Category List</h1>
-<form>
-    <input name="categoryName" id="categoryName">
-    <input type="submit" th:value="Create" onclick="addCategory()">
-
-</form>
-
-<table id="list">
-    <tr>
-        <td>#</td>
-        <td>Name</td>
-        <td>Action</td>
-    </tr>
-    <th:block th:each="p:${categories}">
+<form th:object="${blogs}">
+    <table id="addBlog">
         <tr>
-            <td th:text="${p.id}"></td>
-            <td th:text="${p.name}"></td>
+            <td>Title:</td>
+            <td><input type="text" id="title" placeholder="title"></td>
+        </tr>
+        <tr>
+            <td>Content:</td>
+            <td><input type="text" id="content" placeholder="content"></td>
+        </tr>
+        <tr>
+            <td>Category:</td>
             <td>
-                <a class="deleteCategory" th:href="${p.getId()}">Delete</a>
+                <select id="category">
+                    <option th:each="c:${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                </select>
             </td>
         </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Add" onclick="addNewBlog()" ></td>
+        </tr>
+    </table>
+</form>
 
+<h1>Book</h1>
+<table id="blogList" border="1">
+    <tr>
+        <th>Title </th>
+        <th>Content</th>
+        <th>Category</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    <th:block th:each="b : ${blogs}">
+        <tr>
+            <td th:text="${b.title}"></td>
+            <td th:text="${b.content}"></td>
+            <td th:if="${b.category}" th:text="${b.category.name}"></td>
+            <td th:unless="${b.category}"></td>
+
+            <td><a th:href="${b.id}" class="updateBook" onclick="updateBlog()">Edit</a></td>
+            <td><a th:href="${b.id}" class="deleteBook" onclick="deleteBlog()">Delete</a></td>
+        </tr>
     </th:block>
 </table>
-<script>
-    function addCategory(){
-        // lấy dũ liệu
-        // let name = document.getElementById("categoryName").value;
-        let nameCategory = $('#categoryName').val();
-        // Tạo mới đối tượng
-        let newCategory = {
-            name: nameCategory
-        }
-        // Chuyển dữ liệu sang JSON
-        let newCategoryJson = JSON.stringify(newCategory);
-
-        //Gọi API tạo mới
-        $.ajax({
-            headers:{
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            // Method
-            type: "POST",
-            //Kiểu dữ liệu đẩy lên
-            data: newCategoryJson,
-            // Tên URL
-            url: "http://localhost:8080/category",
-            success: function (){
-                showListCategory();
-                alert("Tạo mới thành công");
-            }
-        })
-
-        // Chặn sự kiện mặc định của form hoặc thẻ
-        event.preventDefault()
-    }
-    function showListCategory(){
-        $.ajax({
-            type: "GET",
-            url: "http://localhost:8080/category",
-            success: function (categories){
-                let content = '<tr>\n' +
-                    '        <td>#</td>\n' +
-                    '        <td>Name</td>\n' +
-                    '        <td>Action</td>\n' +
-                    '    </tr>';
-                for (let i = 0; i < categories.length; i++) {
-                    content += ` <tr>
-            <td> ${categories[i].id}</td>
-            <td> ${categories[i].name}</td>
-            <td>
-            <a class="deleteCategory" th:href="${p.getId()}">Delete</a>
-
-
-            </td>
-         </tr>`;
-
-                }
-                document.getElementById("list").innerHTML = content;
-            }
-        })
-    }
-    // $(document).ready(function (){
-    //     $(".deleteCategory").click(function (event){
-    //         let a = $(this);
-    //         let categoryId = a.attr("href");
-    //         $.ajax({
-    //             type: "DELETE",
-    //             // url: "/category/" + categoryId,
-    //             url: `/category/${categoryId}`, // chú ý url phải dùng mark down, sai lòi mắt :(((
-    //             success: function () {
-    //                 a.parent().parent().remove();
-    //             }
-    //         })
-    //         event.preventDefault();
-    //     })
-    // })
-    function deleteCategory(element){
-        // let a = $(this);
-        let categoryId = element.getAttribute("href");
-        $.ajax({
-            type:"DELETE",
-
-            url: `/category/${categoryId}`,
-            // success: function () {
-            //     element.parentElement.parentElement.remove();
-            // }
-            success: showListProvince
-
-        })
-        event.preventDefault();
-    }
-
-
-
-
-
-</script>
 </body>
 </html>

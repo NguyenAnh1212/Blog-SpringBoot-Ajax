@@ -16,7 +16,7 @@ public class CategoryController {
 
     @GetMapping("/list")
     public ModelAndView showList(){
-        ModelAndView modelAndView = new ModelAndView("list_category");
+        ModelAndView modelAndView = new ModelAndView("category/list_category");
         modelAndView.addObject("categories", categoryService.findAll());
         return modelAndView;
     }
