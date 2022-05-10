@@ -68,6 +68,34 @@
             event.preventDefault();
         }
 
+        function showCate(){
+            $.ajax({
+                type:"GET",
+                url:"http://localhost:8080/category",
+                success: function (cate){
+                    let content = "";
+                    for (let i = 0; i < cate.length; i++) {
+                        content +=`<option value="${cate[i].id}">${cate[i].name}</option>`
+                    }
+                    $("#category").html(content);
+                }
+
+            })
+        }
+        showCate();
+
+        // function update(id) {
+        //     $.ajax({
+        //         url: "/blog",
+        //         type: "GET",
+        //         dataType: "json",
+        //         success: function (data) {
+        //
+        //         }
+        //     })
+        //
+        // }
+
 
         // function updateBook(id){
         //     let name = $(`#name`).val();
@@ -103,11 +131,11 @@
     <table id="addBlog">
         <tr>
             <td>Title:</td>
-            <td><input type="text" id="title" placeholder="title"></td>
+            <td><input type="text" id="title" placeholder="Title"></td>
         </tr>
         <tr>
             <td>Content:</td>
-            <td><input type="text" id="content" placeholder="content"></td>
+            <td><input type="text" id="content" placeholder="Content"></td>
         </tr>
         <tr>
             <td>Category:</td>
@@ -124,7 +152,7 @@
     </table>
 </form>
 
-<h1>Book</h1>
+<h1>Blog</h1>
 <table id="blogList" border="1">
     <tr>
         <th>Title </th>

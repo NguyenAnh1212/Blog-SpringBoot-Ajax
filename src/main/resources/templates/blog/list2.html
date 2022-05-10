@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function (){
+            $("#addBlog").click(function () {
+                let title = $('#title').val();
+                let content = $('#content').val();
+                let category = $('#category').val();
+                let newBlog = {
+                    title: title,
+                    content : content,
+                    category: {
+                        id: category
+                    }
+                }
+
+                $.ajax({
+                    url: "http://localhost:8080/blog",
+                    method: "POST",
+                    data: JSON.stringify(newBlog),
+                    contentType: "application/json; charset=utf-8",
+                    success: function () {
+                        alert("save successfully");
+                    },
+                    error: function (error) {
+                        alert(error)
+                    }
+                })
+            })
+        })
+
+    </script>
+</head>
+<body>
+<form th:object="${blogs}">
+    <table id="addBlog">
+        <tr>
+            <td>Title:</td>
+            <td><input type="text" id="title" placeholder="title"></td>
+        </tr>
+        <tr>
+            <td>Content:</td>
+            <td><input type="text" id="content" placeholder="content"></td>
+        </tr>
+        <tr>
+            <td>Category:</td>
+            <td>
+                <select id="category">
+                    <option th:each="c:${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Add" onclick="addNewBlog()" ></td>
+        </tr>
+    </table>
+</form>
+<!--<div>-->
+<!--    <table>-->
+<!--        <tr>-->
+<!--            <td>Title</td>-->
+<!--            <td><input type="text" id="title"></td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <td>Content</td>-->
+<!--            <td><input type="text" id="content"></td>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <td>Category</td>-->
+<!--            <td>-->
+<!--                <select id="category">-->
+<!--                    <option each="c:${categories}" value="${c.id}" text="${c.name}"></option>-->
+<!--                </select>-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--        <tr colspan="2">-->
+<!--            <td><input type="button" value="Add Blog" id="addBlog"></td>-->
+<!--        </tr>-->
+<!--    </table>-->
+<!--</div>-->
+
+</body>
+</html>
